@@ -1,0 +1,102 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 1: Operators of your own %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% plays(tommy,and(football,squash))
+% plays(susan,and(tennis,and(basket,volley)))
+
+:-op(700,xfx,was).
+:-op(600,xfx,of).
+:-op(500,fx,the).
+
+lydie was the secretary of the department.
+
+:-op(700,fx,deleting).
+:-op(600,xfx,gives).
+:-op(500,xfx,from).
+
+deleting Item from [Item|Rest] gives Rest.
+deleting Item from [First|Rest] gives [First|NewRest] :-
+	deleting Item from Rest gives NewRest.
+
+:- op(900,fx,if).
+:- op(800,xfx,then).
+:- op(700,xfx,else).
+:- op(600,xfx,:=).
+
+if Val1 > Val2 then Var := Val3 else _ :-
+	Val1>Val2,
+	Var=Val3.
+if Val1 > Val2 then _ else Var := Val4 :-
+	Val1=<Val2,
+	Var=Val4.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2: Predicates for Input and Output %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+square(stop):-
+	!,
+	fail.
+square(X):-
+	Y is X*X,
+	write('Square is '),
+	write(Y),
+	nl.
+square:-
+	write('Give a number: '),
+	read(X),
+	square(X),
+	square.
+
+writelist([]).
+writelist([H|R]):-
+	write(H),
+	tab(5),
+	writelist(R).
+
+writestars(0):-
+	!,nl.
+writestars(N):-
+	write('*'),
+	Nn is N-1,
+	writestars(Nn).
+bars([]).
+bars([H|R]):-
+	writestars(H),
+	bars(R).
+
+showfile(Nr):-
+	read(X),
+	!,
+	X \= end_of_file,
+	write(Nr),
+	write(': '),
+	write(X),
+	nl,
+	Nnr is Nr+1,
+	showfile(Nnr).
+
+findallterms(Term) :-
+	read(CurrentTerm),             % Assuming CurrentTerm not a variable
+	process(CurrentTerm,Term).
+
+process(end_of_file,_) :- !.
+process(CurrentTerm,Term) :-
+	(not(CurrentTerm = Term),!     % Terms do not match
+	;
+	write(CurrentTerm),nl          % Otherwise output current term
+	),
+	findallterms(Term).            % do the rest of the file
+
+squeeze :-
+	get0(C),
+	put(C),
+	dorest(C).
+
+dorest(46) :- !.                       % 46 is ASCII for full stop, all done
+dorest(32) :- !,                       % 32 is ASCII for blank
+	get(C),                        % skip other blanks
+	put(C),
+	dorest(C).
+dorest(_) :-
+	squeeze.

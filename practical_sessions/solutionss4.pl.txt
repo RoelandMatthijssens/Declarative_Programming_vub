@@ -1,0 +1,236 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 1: Cuts and Backtracking %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Part 1: 
+f1(X,0) :- X<3.
+f1(X,2) :- 3=<X, X<6.
+f1(X,4) :- 6=<X.
+
+% ?- f1(1, Y),2<Y  
+% No 
+
+% Part 2:
+f2(X,0) :- X<3, !.
+f2(X,2) :- 3=<X, X<6, !.
+f2(X,4) :- 6=<X,!.
+
+% ?- f2(1, Y),2<Y 
+% No 
+
+% Part 3:
+f3(X,0) :- X<3, !.
+f3(X,2) :- X<6, !.
+f3(_,4).
+
+% f3 is not completely equivalent with f1 and f2, because
+% f1(1,2)  =>  No 
+% f2(1,2)  =>  No 
+% f3(1,2)  =>  Yes
+
+% Part 4:
+f4(X,Y) :- X<3, !, Y=0.
+f4(X,Y) :- X<6, !, Y=2.
+f4(_,4).
+
+% f4 is equivalent with f1 and f2
+
+% Part 5:
+% (a) no cut
+% (b) green cuts
+% (c) and (d) use red cuts, because dropping the cuts change the
+% meaning of the program
+
+% With cuts: 
+% ?- f4(1,X).
+% X=0
+
+% Without cuts:
+f4_without_cuts(X,Y) :- X<3, Y=0.
+f4_without_cuts(X,Y) :- X<6, Y=2.
+f4_without_cuts(_,4).
+
+% ?- f4_without_cuts(1,X).
+% X=0
+% X=2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2: Exercises and Problems with Cut %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Merge
+%=======
+
+% without cut
+mergesc([X|Xs],[Y|Ys],[X|Rest]):-
+	X =< Y,
+	mergesc(Xs,[Y|Ys],Rest).
+mergesc([X|Xs],[Y|Ys],[Y|Rest]):-
+	Y < X,
+	mergesc([X|Xs],Ys,Rest).
+mergesc(X,[],X).
+mergesc([],Y,Y).
+
+% green cut version
+mergec([X|Xs],[Y|Ys],[X|Rest]):-
+	X =< Y,
+	!,
+	mergesc(Xs,[Y|Ys],Rest).
+mergec([X|Xs],[Y|Ys],[Y|Rest]):-
+	Y < X,
+	!,
+	mergesc([X|Xs],Ys,Rest).
+mergec(X,[],X):-
+	!.
+mergec([],Y,Y):-
+	!.
+
+% red cut version
+mymerge([X|Xs],[Y|Ys],[Z|M]):-
+	X=<Y,
+	!,
+	Z=X,
+	mymerge(Xs,[Y|Ys],M).
+mymerge([X|Xs],[Y|Ys],[Y|M]):-
+	!,
+	mymerge([X|Xs],Ys,M).
+mymerge([],Ys,Ys):-
+	!.
+mymerge(Xs,[],Xs):-
+	!.
+	
+% Part 6:
+%	Try the following query:
+%		merge([1,2,3],[4,5],[4,1,5,2,3]).
+%	You suspect No as an answer, but you get
+%	Yes, which is wrong. This is caused by the third clause of the
+%	merge predicate.
+
+% Split
+%=======
+
+% without cut
+split([],[],[]).
+split([H|R],[H|Pos],Neg):-
+	H>=0,
+	split(R,Pos,Neg).
+split([H|R],Pos,[H|Neg]):-
+	H<0,
+	split(R,Pos,Neg).
+
+% with green cut
+splitcut([],[],[]):-
+	!.
+splitcut([H|R],[H|Pos],Neg):-
+	H>=0,
+	!,
+	splitcut(R,Pos,Neg).
+splitcut([H|R],Pos,[H|Neg]):-
+	H<0,
+	!,
+	splitcut(R,Pos,Neg).
+
+% Red cut version
+split2([], [], []) :- !.
+split2([H|T], P, Neg) :-
+	H >= 0, !,
+	P = [H|Pos],
+	split2(T, Pos, Neg).
+split2([H|T], Pos, [H|Neg]) :-
+	split2(T, Pos, Neg).
+
+% Part 3:
+%	Try the following query:
+%		split([5,-5],[],[5,-5]).
+%	You suspect No as an answer,  but you get Yes, which is wrong
+%	again. This is caused by the third clause of split. The
+%	problem is dat split([5,-5],[],[5,-5]) does not unify with
+%	split([X|L],[X|L1],L2) because [] != [X|L1]
+
+% minimum
+%=========
+
+% without cut
+minimuma(X,Y,X):-
+	X=<Y.
+minimuma(X,Y,Y):-
+	Y<X.
+
+% with green cuts
+minimumb(X,Y,X):-
+	X=<Y,
+	!.
+minimumb(X,Y,Y):-
+	Y<X,
+	!.
+
+% with red cuts
+minimumc(X,Y,Z):-
+	X=<Y,
+	!,
+	Z=X.
+minimumc(_,Y,Y).
+
+% The last implementation is correct
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 3: Cuts and Logical Expressions %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% (a AND b) OR c --> p
+% (a AND b) OR (not a AND c) --> p	{red cut}
+% c OR (a AND b) --> p			{green cut}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 4: Cut and Negation as Failure %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+set_diff([],_,[]).
+set_diff([X|Y],Set2,Res):-
+	not(member(X,Set2)), !,
+	Res = [X|Diff],
+	set_diff(Y,Set2,Diff).
+set_diff([_|Y],Set2,Diff):-
+	set_diff(Y,Set2,Diff).
+
+unifyable([],_,[]).
+unifyable([H|R],T,L):-
+	not(H = T),
+	!,
+	unifyable(R,T,L).
+unifyable([H|R],T,[H|L]):-
+	unifyable(R,T,L).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 5: And Finally %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+queens([]).
+queens([X/Y|O]):-
+	queens(O),
+	member(Y,[1,2,3,4,5,6,7,8]),
+	not(attacks(X/Y,O)).
+
+attacks(X/Y,Others):-
+	member(X1/Y1,Others),
+	(Y1 = Y;
+	 Y1 is Y+X1-X;
+	 Y1 is Y-X1+X).
+
+myfindall(Var,Exp,_):-
+	asserta(found_answer('##SENTINEL##')),
+	call(Exp),
+	asserta(found_answer(Var)),
+	fail.
+myfindall(_,_,List):-
+	collectAnswers([],L),
+	!,
+	List=L.
+
+collectAnswers(List1,List2):-
+	nextAnswer(X),
+	!,
+	collectAnswers([X|List1],List2).
+collectAnswers(List,List).
+nextAnswer(X):-
+	retract(found_answer(X)),
+	!,
+	X\=='##SENTINEL##'.

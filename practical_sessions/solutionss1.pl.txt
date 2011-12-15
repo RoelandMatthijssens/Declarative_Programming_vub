@@ -1,0 +1,238 @@
+%%%%%%%%%%%%%%%%%%%%%%
+% Question 1: Facts  %
+%%%%%%%%%%%%%%%%%%%%%%
+:-style_check(-discontiguous).
+
+male(jean).
+male(albert).
+male(luc).
+male(bernard).
+male(karel).
+male(vincent).
+male(tom).
+male(koen).
+male(jan).
+female(anja).
+female(simonne).
+female(miranda).
+female(belinda).
+female(linda).
+female(inge).
+female(saar).
+
+father(jean,simonne).
+father(jean,luc).
+father(jean,bernard).
+father(jean,saar).
+mother(anja,simonne).
+mother(anja,luc).
+mother(anja,bernard).
+mother(anja,saar).
+father(albert,miranda).
+father(albert,vincent).
+father(albert,belinda).
+mother(simonne,miranda).
+mother(simonne,vincent).
+mother(simonne,belinda).
+father(bernard,tom).
+father(bernard,linda).
+mother(inge,tom).
+mother(inge,linda).
+father(karel,koen).
+father(karel,jan).
+mother(saar,koen).
+mother(saar,jan).
+
+:-style_check(+discontiguous).
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2: Queries %
+%%%%%%%%%%%%%%%%%%%%%%%
+% ?- father(bernard,tom).
+% ?- mother(anja,jan).
+% ?- father(karel,X).
+% ?- mother(simonne,Son),male(Son).
+% ?- is_ontdekt(miranda,Year,Who).
+% ?- is_maan_van(tethys,uranus).
+% ?- is_maan_van(tethys,saturnus).
+% ?- is_maan_van(Maan,jupiter).
+% ?- is_maan_van(Maan,Planeet),is_ontdekt(Maan,Year,galilei).
+% not possible to know which planets are discovered by cassini
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Question 3: Rules  %
+%%%%%%%%%%%%%%%%%%%%%%
+
+parent(Parent,Child):-
+	father(Parent,Child).
+parent(Parent,Child):-
+	mother(Parent,Child).
+
+son(Son,Parent):-
+	male(Son),
+	parent(Parent,Son).
+
+daughter(Daughter,Parent):-
+	female(Daughter),
+	parent(Parent,Daughter).
+
+grandfather(Grandfather,Grandchild):-
+	father(Grandfather,X),
+	parent(X,Grandchild).
+
+grandparent(Grandparent,Grandchild):-
+	parent(Grandparent,X),
+	parent(X,Grandchild).
+
+brother(Brother,Sibling):-
+	Brother \= Sibling,
+	male(Brother),
+	parent(X,Brother),
+	parent(X,Sibling),
+	parent(Y,Brother),
+	parent(Y,Sibling),
+	X \= Y.
+
+sibling(Sibling1,Sibling2):-
+	Sibling1 \= Sibling2,
+	parent(X,Sibling1),
+	parent(X,Sibling2),
+	parent(Y,Sibling1),
+	parent(Y,Sibling2),
+	X \= Y.
+
+havechildrentogether(Person1,Person2):-
+	Person1 \= Person2,
+	parent(Person1,X),
+	parent(Person2,X).
+
+uncle(Uncle,Person):-
+	male(Uncle),
+	parent(X,Person),
+	sibling(X,Uncle).
+
+% These solutions satisfy all constraints.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 4: Proof trees %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% grandparent(jean,linda) ------------- grandparent(Grandparent,Grandchild):-
+%	|					parent(Grandparent,X),
+%	|					parent(X,Grandchild)
+%	|				{Grandparent=jean Grandchild=linda}
+%	|
+% parent(jean,X),parent(X,linda) ------	parent(Parent,Child):-
+%	|					father(Parent,Child)
+%	|				{Parent=jean Child=X}
+%	|
+% father(jean,X),parent(X,linda) ------ father(jean,bernard)
+%	|				{X=bernard}
+%	|
+% parent(bernard,linda) ---------------	parent(Parent,Child):-
+%	|					father(Parent,Child)
+%	|				{Parent=bernard Child=linda}
+% father(bernard,linda) --------------- father(bernard,linda)
+%	|
+%	|
+%	_
+%
+%%%%%%%%%%%%%%%%%%
+%
+% grandfather(Who,koen) --------------- grandfather(Grandfather,Grandchild):-
+%	|					father(Grandfather,X),
+%	|					parent(X,Grandchild)
+%	|				{Grandfather=Who Grandchild=koen}
+%	|
+% father(Who,X),parent(X,koen) --------	father(jean,saar)
+%	|				{Who=jean X=saar}
+%	|
+% parent(saar,koen) -------------------	parent(Parent,Child):-
+%	|					mother(Parent,Child)
+%	|				{Parent=saar Child=koen}
+%	|
+% mother(saar,koen) ------------------- mother(saar,koen)
+%	|
+%	|
+%	_
+%
+% These solutions use the prolog search strategy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 5: Unique anonymous variables %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ?- mother(saar,_).
+
+human(_).
+
+isparent(Person):-
+	parent(Person,_).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 6: Second order predicates %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ?- findall(Child,father(bernard,Child),Children).
+% ?- findall(Son,(father(jean,Son),male(Son)),Sons).
+% ?- setof(ChildAlbert,father(albert,ChildAlbert),ChildrenOfAlbert),
+%    setof(ChildSimonne,mother(simonne,ChildSimonne),ChildrenOfSimonne),
+%    ChildrenOfAlbert=ChildrenOfSimonne.
+% ?- findall(F,father(F,_),Fathers),
+%    findall(Fm,(father(Fm,_),male(Fm)),FathersMale),
+%    Fathers=Fathersmale,
+%    findall(M,mother(M,_),Mothers),
+%    findall(Mf,(mother(Mf,_),female(Mf)),MothersMale),
+%    Mothers=Mothersmale.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 7: Recursive rules %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+predecessor(Preparent,Child):-
+	parent(Preparent,X),
+	predecessor(X,Child).
+predecessor(Preparent,Child):-
+	parent(Preparent,Child).
+
+% When you switch both rules, you get the results in another direction
+% and the computation takes longer.
+%
+% When you switch the order of the subclauses in the recursive rule,
+% you get an infinite loop
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 8: Structures %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% represent point by point(x,y)
+% represent rectangle by rectangle(upperleftpoint,lowerrightpoint)
+% represent square by square(upperleftpoint,sidelength)
+% represent circle by circle(middlepoint,radius)
+% represent oval by oval(middlepoint,xradius,yradius)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 9: Monkey/banana problem %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% monkey and box both in the middle
+% monkey on the box
+% grab the banana
+move(state(middle,onbox,middle,hasnot),grab,state(middle,onbox,middle,has)).
+
+% climb on the box
+move(state(X,onfloor,X,Y),climb,state(X,onbox,X,Y)).
+
+% push box
+move(state(X,onfloor,X,Z),push(X,Y),state(Y,onfloor,Y,Z)).
+
+% walk
+move(state(X,onfloor,Y,Z),walk(X,XX),state(XX,onfloor,Y,Z)).
+
+% is there a solution?
+canget(state(_,_,_,has)).
+canget(StartState):-
+        move(StartState,_,NewState),
+        canget(NewState).
+
+% ?- canget(state(door,onfloor,window,hasnot)).
+

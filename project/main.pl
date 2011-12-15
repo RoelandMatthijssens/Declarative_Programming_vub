@@ -1,0 +1,1 @@
+:-[city, shortest_path].

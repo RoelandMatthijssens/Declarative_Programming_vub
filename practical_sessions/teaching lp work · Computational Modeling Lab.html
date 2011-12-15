@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0038)http://como.vub.ac.be/teaching:lp:work -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>
+    teaching:lp:work · Computational Modeling Lab  </title>
+
+  <meta name="generator" content="DokuWiki">
+<meta name="robots" content="index,follow">
+<meta name="date" content="2008-09-15T23:35:35+0200">
+<meta name="keywords" content="teaching,lp,work">
+<link rel="search" type="application/opensearchdescription+xml" href="http://como.vub.ac.be/lib/exe/opensearch.php" title="Computational Modeling Lab">
+<link rel="start" href="http://como.vub.ac.be/">
+<link rel="contents" href="http://como.vub.ac.be/teaching:lp:work?do=index" title="Sitemap">
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="http://como.vub.ac.be/feed.php">
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="http://como.vub.ac.be/feed.php?mode=list&ns=teaching:lp">
+<link rel="alternate" type="text/html" title="Plain HTML" href="http://como.vub.ac.be/_export/xhtml/teaching:lp:work">
+<link rel="canonical" href="./teaching lp work · Computational Modeling Lab_files/teaching lp work · Computational Modeling Lab.html">
+<link rel="stylesheet" media="screen" type="text/css" href="./teaching lp work · Computational Modeling Lab_files/css.php">
+<link rel="stylesheet" media="all" type="text/css" href="./teaching lp work · Computational Modeling Lab_files/css(1).php">
+<link rel="stylesheet" media="print" type="text/css" href="./teaching lp work · Computational Modeling Lab_files/css(2).php">
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='teaching:lp';var JSINFO = {"id":"teaching:lp:work","namespace":"teaching:lp"};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="./teaching lp work · Computational Modeling Lab_files/js.php"></script>
+<script type="text/javascript" charset="utf-8"><!--//--><![CDATA[//><!--
+plugin_statistics.init('teaching%3Alp%3Awork');
+//--><!]]></script>
+
+  <link rel="shortcut icon" href="http://como.vub.ac.be/lib/tpl/minima/images/favicon.ico">
+
+  </head>
+
+<body>
+<div class="dokuwiki" id="minima__wide_right">
+  
+  <div class="header">
+    <div class="logo">
+      <a href="http://como.vub.ac.be/" name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[ALT+H]">Computational Modeling Lab</a>    </div>
+  </div>
+
+  
+  <div class="main">
+  
+      
+        
+    
+        
+      
+    <div class="page">
+        
+      <!-- wikipage start -->
+      
+<p>
+<a href="http://como.vub.ac.be/teaching:lp" class="wikilink1" title="teaching:lp"> Back To Main Page</a>
+</p>
+
+<h1 class="sectionedit1"><a name="basis_swi-prolog" id="basis_swi-prolog">Basis SWI-Prolog</a></h1>
+<div class="level1">
+<ul>
+<li class="level1"><div class="li"> To start SWI-prolog type pl on the commandline.</div>
+</li>
+<li class="level1"><div class="li"> Starting up/Loading a file:</div>
+</li>
+</ul>
+<pre class="code">  ?- consult(+file).
+  + file is the name of a prolog source file that has to be read.
+  + file has either no extension or the extension '.pl'
+  + file has to be in the current directory
+  + never forget to place a point after the query
+  + if a file is a list of files, then every file is loaded in order
+  + e.g.: the filename is "test.pl", then we type
+  ?- consult(test).
+  ?- ensure_loaded(+file).
+  + is equivalent with consult, but the file is only 
+    loaded/consulted if this was not done before.</pre>
+<ul>
+<li class="level1"><div class="li"> SWI-prolog is left by</div>
+</li>
+</ul>
+
+<p>
+
+   ?- halt.
+
+</p>
+<ul>
+<li class="level1"><div class="li"> To get further results of a query type ”;” after a result.</div>
+</li>
+<li class="level1"><div class="li"> To get online help, you have the following predicates at your disposal:</div>
+</li>
+</ul>
+<pre class="code"> ?- help(+what).
+   + "what" is one of the following:
+     # Name/Arity =&gt; show a part of the manual about this specific predicate.
+     # Name =&gt; show a part of the manual about a predicate or 
+               interface function with this name
+     # e.g.:
+     ?- help(append).
+ ?- explain(+ToExplain).
+   + This predicate explains the given prolog-object "ToExplain", 
+   e.g., is an atom, is primitive, ...
+   + eg.:
+     ?- explain(flight(sn,5016)).
+       "flight(sn,5040)" is a compound term </pre>
+<ul>
+<li class="level1"><div class="li"> You can go through the history of all tried queries using the arrows on your keyboard.</div>
+</li>
+<li class="level1"><div class="li"> You can get a listing of all the code that you have loaded yourself by the command</div>
+</li>
+</ul>
+<pre class="code">    ?- listing.</pre>
+<ul>
+<li class="level1"><div class="li"> If the predicates with the same name are not together in the sourcefile, SWI-prolog will give the following warning: “Clauses of xxxxxxxxxx/# are not together in the sourcefile”. Because warnings can be quite annoying and confusing (like assistants), one can disable them by adding at the top of the source file</div>
+</li>
+</ul>
+<pre class="code">    :-style_check(-discontiguous).
+    Similarly, they can be back activated:
+    :-style_check(+discontiguous). </pre>
+
+<p>
+<a href="http://como.vub.ac.be/teaching:lp" class="wikilink1" title="teaching:lp"> Back To Main Page</a>
+
+</p>
+
+</div>
+
+      <!-- wikipage stop -->
+      
+            <div class="meta">
+        teaching/lp/work.txt · Last modified: 2008/09/15 23:35 by ydehauwe      </div>
+            
+        
+          </div><!-- page -->
+    
+    <div class="sidebar">
+      
+<p>
+<a href="http://como.vub.ac.be/_detail/como.png?id=sidebar" class="media" title="como.png"><img src="./teaching lp work · Computational Modeling Lab_files/como.png" class="media" alt="" width="180"></a>
+</p>
+<ul>
+<li class="level1"><div class="li"> <a href="http://como.vub.ac.be/start" class="wikilink1" title="start"> Home</a></div>
+</li>
+<li class="level1"><div class="li"> <a href="http://como.vub.ac.be/research" class="wikilink1" title="research"> Research </a>    </div>
+</li>
+<li class="level1"><div class="li"> <a href="http://como.vub.ac.be/teaching" class="wikilink1" title="teaching"> Teaching </a></div>
+</li>
+<li class="level1"><div class="li"> <a href="http://como.vub.ac.be/members" class="wikilink1" title="members"> Members </a></div>
+</li>
+<li class="level1"><div class="li"> <a href="http://como.vub.ac.be/comostuff" class="wikilink1" title="comostuff"> CoMo Stuff </a>    </div>
+</li>
+</ul>
+      <hr>
+              <ul>
+          <li><div class="li"><a href="http://como.vub.ac.be/teaching:lp:work?do=index" class="action index" accesskey="x" rel="nofollow" title="Sitemap">Sitemap</a></div></li>
+          <li><div class="li"><a href="http://como.vub.ac.be/teaching:lp:work?do=recent" class="action recent" accesskey="r" rel="nofollow" title="Recent changes">Recent changes</a></div></li>
+        </ul>
+            <div class="centeralign"><form action="http://como.vub.ac.be/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search"><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]"><input type="submit" value="Search" class="button" title="Search"><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form></div>
+              <hr>
+        <ul>
+          <li><div class="li"><a href="http://como.vub.ac.be/teaching:lp:work?do=login&sectok=a976d5390d44234ed7e42382e0e0c872" class="action login" accesskey="" rel="nofollow" title="Login">Login</a>                    </div></li>
+                  </ul>
+          </div><!-- sidebar -->
+  
+  </div><!-- main -->
+
+  <div class="clearer"></div>
+
+    
+  <div class="footer">
+    <div class="edgeleft"><div class="borderbottom">&nbsp;</div></div>
+    <div class="edgeright"><div class="borderbottom">&nbsp;</div></div>
+  </div><!-- footer -->
+
+</div>
+
+<div class="footerinc">
+  <a target="_blank" href="http://como.vub.ac.be/feed.php" title="Recent changes RSS feed"><img src="./teaching lp work · Computational Modeling Lab_files/button-rss.png" width="80" height="15" alt="Recent changes RSS feed"></a>
+
+  <a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/2.0/" rel="license" title="Creative Commons License"><img src="./teaching lp work · Computational Modeling Lab_files/button-cc.gif" width="80" height="15" alt="Creative Commons License"></a>
+
+  <a target="_blank" href="https://www.paypal.com/xclick/business=andi%40splitbrain.org&item_name=DokuWiki+Donation&no_shipping=1&no_note=1&tax=0&currency_code=EUR&lc=US" title="Donate"><img src="./teaching lp work · Computational Modeling Lab_files/button-donate.gif" alt="Donate" width="80" height="15"></a>
+
+  <a target="_blank" href="http://wiki.splitbrain.org/wiki:dokuwiki" title="Driven by DokuWiki"><img src="./teaching lp work · Computational Modeling Lab_files/button-dw.png" width="80" height="15" alt="Driven by DokuWiki"></a>
+
+
+
+<!--
+
+<rdf:RDF xmlns="http://web.resource.org/cc/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<Work rdf:about="">
+   <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+   <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.0/" />
+</Work>
+
+<License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.0/">
+   <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+   <permits rdf:resource="http://web.resource.org/cc/Distribution" />
+   <requires rdf:resource="http://web.resource.org/cc/Notice" />
+   <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+   <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse" />
+   <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+   <requires rdf:resource="http://web.resource.org/cc/ShareAlike" />
+</License>
+
+</rdf:RDF>
+
+-->
+
+
+</div>
+
+<div class="no"><img src="./teaching lp work · Computational Modeling Lab_files/indexer.php" width="1" height="1" alt=""></div>
+
+
+</body></html>

@@ -1,0 +1,198 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 1: Unification %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+vertical(point(X,_),point(X,_)).
+horizontal(point(_,Y),point(_,Y)).
+
+% ?- vertical(point(1,1),point(1,2)).
+% Yes
+
+% ?- vertical(point(1,1),point(2,4)).
+% No
+
+% ?- horizontal(point(1,1),point(2,X)).
+% X = 1 ;
+% No
+
+% ?- vertical(point(2,3),X).
+% X = point(2, _G310) ;
+% No
+
+% ?- horizontal(point(1,2),point(X,_)).
+% X = _G277 ;
+% No
+
+% ?- horizontal(point(2,3),point(5,3,1)).
+% No
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2: Caching %
+%%%%%%%%%%%%%%%%%%%%%%%
+:-dynamic a/0.
+:-dynamic b/0.
+a:-assert((a:-b)),fail.
+b:-asserta((b:-c)),fail.
+b:-write('Dit is b').
+c:-write('Dit is c').
+
+%  ?- consult(test).
+%  test compiled, 0.01 sec, 1,332 bytes.
+%  Yes
+%
+%  ?- a.
+%  No
+%
+%  ?- a.
+%  Dit is b
+%  Yes
+%
+%  ?- a.
+%  Dit is c
+%  Yes
+%
+%  ?- a.
+%  Dit is c
+%  Yes
+
+my_copy_term(Term,Copy):-
+        assert(term_to_copy(Term)),
+        retract(term_to_copy(Copy)).
+
+%%%%%%%%%%%%%%%%%%%%%
+% Question 3: Lists %
+%%%%%%%%%%%%%%%%%%%%%
+% [a|[]]
+% [a|[b|[c|[]]]]
+% [a|L]
+% [a|[b|[c|L]]]
+% [[a|[b|[c|[]]]]|[b|[d|[e|[]]]]]
+%
+% [a]
+% [a,b,c]
+% [a|L]
+% [a,b,c|L]
+% [[a,b,c],[b,d,e]]
+
+my_member(Element,[Element|_]).
+my_member(Element,[_|Rest]):-
+        my_member(Element,Rest).
+
+my_append([],List2,List2).
+my_append([Head|RestList2],List2,[Head|Rest]):-
+        my_append(RestList2,List2,Rest).
+
+rotateleft([Head|Rest],Rotate):-
+        my_append(Rest,[Head],Rotate).
+
+rotateright(List,[Head|Rest]):-
+        my_append(Rest,[Head],List).
+
+% the following is also correct
+% rotateright(List,Rotate):-
+%	rotateleft(Rotate,List).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 4: Tracing/Debugging %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% h computes the reverse of a list
+% L = [3,2,1]
+
+% sub1 and sub3 behave equally, sub2 is much more inefficient then
+% sub1 and sub3; the reason herefore is the subclause
+%	append(_,Sublist,List1)
+% because an append is very inefficient (check it yourself) when
+% you use it to find a value for the first argument (_ here),
+% which is the case here.
+% Note: the above explanation only holds when both the List and Sublist
+% variables are bound, e.g. sub1([1,2,3],[1]) but not sub1([1,2,3],X)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 5: More on lists  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+my_reverse([],Reverse,Reverse).
+my_reverse([Head|Rest],ReverseAcc,Reverse):-
+	my_reverse(Rest,[Head|ReverseAcc],Reverse).
+my_reverse(List,Reverse):-
+	my_reverse(List,[],Reverse).
+
+my_last(Element,List):-
+	my_append(_,[Element],List).
+
+my_delete([],_,[]).
+my_delete([Element|Rest],Element,Result):-
+	!,	% to prevent backtracking when findall used
+	my_delete(Rest,Element,Result).
+my_delete([Head|Rest],Element,[Head|RestResult]):-
+	my_delete(Rest,Element,RestResult).
+
+tailsearch(Element,List,[Element|Rest]):-
+	my_append(_,[Element|Rest],List).
+
+insert(Element,List,[Element|List]).
+insert(Element,[Y|Rest],[Y|RRest]):-
+	insert(Element,Rest,RRest).
+
+permutation([],[]).
+permutation([Head|Rest],Permutation):-
+	permutation(Rest,Y),
+	insert(Head,Y,Permutation).
+
+my_subset([],[]).
+my_subset(Set,[Head|Sublist]):-
+	permutation(Set,[Head|Rest]),
+	my_subset(Rest,Sublist).
+my_subset([_|Rest],Sublist):-
+	permutation(Rest,PerRest),
+	my_subset(PerRest,Sublist).
+
+powerset(Set,Subsets):-
+	findall(X,my_subset(Set,X),Subsets).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 6: Extension Monkey / Banana   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% monkey and box both in the middle
+% monkey on the box
+% grab the banana
+move(state(middle,onbox,middle,hasnot),grab,state(middle,onbox,middle,has)).
+
+% climb on the box
+move(state(X,onfloor,X,Y),climb,state(X,onbox,X,Y)).
+
+% push box
+move(state(X,onfloor,X,Z),push(X,Y),state(Y,onfloor,Y,Z)).
+
+% walk
+move(state(X,onfloor,Y,Z),walk(X,XX),state(XX,onfloor,Y,Z)).
+
+% is there a solution?
+canget(state(_,_,_,has),[]).
+canget(StartState,[Action|ListActions]):-
+        move(StartState,Action,NewState),
+	canget(NewState,ListActions).
+	
+% ?- canget(state(door,onfloor,window,hasnot)).	
+
+%%%%%%%%%%%%%%%%%%%%
+% Question 7: NFA- %
+%%%%%%%%%%%%%%%%%%%%
+accepts(State,[]):-
+        final(State).
+accepts(State,[H|R]):-
+        trans(State,H,NewState),
+        accepts(NewState,R).
+accepts(State,String):-
+        silent(State,State1),
+        accepts(State1,String).
+
+final(s3).
+trans(s1,a,s1).
+trans(s1,a,s2).
+trans(s1,b,s1).
+trans(s2,b,s3).
+trans(s3,b,s4).
+
+silent(s2,s4).
+silent(s3,s1).

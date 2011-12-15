@@ -1,0 +1,167 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 1: Representing natural numbers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% we represent zero by 0
+% the number x is represented by s(s(s(...s(0)))) where the number of s's is x
+
+natural(0).
+natural(s(X)):-
+	natural(X).
+
+smaller_or_equal(0,X):-
+	natural(X).
+smaller_or_equal(s(X),s(Y)):-
+	smaller_or_equal(X,Y).
+
+my_plus(0,Y,Y):-
+	natural(Y).
+my_plus(s(X),Y,s(Z)):-
+	my_plus(X,Y,Z).
+
+% A short way of doing subtraction
+%
+%my_min(X,Y,Z):-
+%	my_plus(Z,Y,X).
+
+my_min(0,X,0):-
+	natural(X).
+my_min(X,0,X):-
+	natural(X).
+my_min(s(X),s(Y),Z):-
+	my_min(X,Y,Z).
+
+times(0,X,0):-
+	natural(X).
+times(s(X),Y,Z):-
+	times(X,Y,T),
+	my_plus(T,Y,Z).
+
+exp(X,0,s(0)):-
+	natural(X).
+exp(X,s(Y),Z):-
+	exp(X,Y,T),
+	times(T,X,Z).
+
+minimum(X,Y,X):-
+	smaller_or_equal(X,Y).
+minimum(X,Y,Y):-
+	smaller_or_equal(Y,X).
+
+% All the above predicates work in both directions.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2: Built-in Aritmetic Predicates %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% X = s(s(s(s(s(s(s(0)))))))
+% X = 7
+% X = s(s(s(s(s(s(s(0)))))))
+%
+% The second query is the most efficient one, while the last one is
+% the most inefficient one.
+
+% X = s(s(0))
+% Error, arguments not sufficiently instantiated
+
+power(_,0,1).
+power(X,N,Result):-
+	NewN is N-1,
+	power(X,NewN,T),
+	Result is X*T.
+% can only be used when X and N is given, i.e. no variables	
+
+gcd(X,X,X).
+gcd(X,Y,Z):-
+	X<Y,
+	NewY is Y-X,
+	gcd(X,NewY,Z).
+gcd(X,Y,Z):-
+	X>Y,
+	gcd(Y,X,Z).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 3: Counting with Lists %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+max(X,Y,X):-
+	X>Y.
+max(X,Y,Y):-
+	Y>X.
+
+maxlist([],Max,Max).
+maxlist([H|R],C,Max):-
+	H>C,
+	maxlist(R,H,Max).
+maxlist([H|R],C,Max):-
+	H=<C,
+	maxlist(R,C,Max).
+maxlist([First|List],Max):-
+	maxlist(List,First,Max).
+
+my_length([],0).
+my_length([_|R],Z):-
+	my_length(R,T),
+	Z is T+1.
+
+ordered_greater([],_).
+ordered_greater([H|R],Prev):-
+	H>=Prev,
+	ordered_greater(R,H).
+ordered_smaller([],_).
+ordered_smaller([H|R],Prev):-
+	H=<Prev,
+	ordered_smaller(R,H).
+ordered([]).
+ordered([H|R]):-
+	ordered_greater(R,H).
+ordered([H|R]):-
+	ordered_smaller(R,H).
+
+my_between(N1,N2,N1):-
+	N1=<N2.
+my_between(N1,N2,X):-
+	N1=<N2,
+	T is N1+1,
+	my_between(T,N2,X).
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% Question 4: Caching %
+%%%%%%%%%%%%%%%%%%%%%%%
+maketable(X,Y):-
+	my_between(X,Y,P),
+	my_between(X,Y,Q),
+	R is P*Q,
+	assert(product(P,Q,R)),
+	fail.
+
+fib(0,0).
+fib(1,1).
+fib(X,Y):-
+	X1 is X-1,
+	X2 is X-2,
+	fib(X1,X1Fib),
+	fib(X2,X2Fib),
+	Y is X1Fib+X2Fib,
+	asserta(fib(X,Y)).
+:-dynamic fib/2.
+
+%%%%%%%%%%%%%%%%%%%%%
+% Question 5: Chess %
+%%%%%%%%%%%%%%%%%%%%%
+dxy(2,1).
+dxy(2,-1).
+dxy(-2,1).
+dxy(-2,-1).
+
+jump(X/Y,Xx/Yy):-
+	(dxy(Dx,Dy);
+	 dxy(Dy,Dx)),
+	Xx is X+Dx,
+	Yy is Y+Dy,
+	my_between(1,8,Xx),
+	my_between(1,8,Yy).
+
+horsepath([_]).
+horsepath([H,Hh|R]):-
+	jump(H,Hh),
+	horsepath([Hh|R]).
+
+% ?- horsepath([2/1,R,5/4,S,X/8]).

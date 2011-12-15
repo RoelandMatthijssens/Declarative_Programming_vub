@@ -1,16 +1,18 @@
 connected(X, Y):-
 	edge(X, Y, _).
 
-path([X| AlreadyVisited], X, [X|AlreadyVisited], L).
-path([X| AlreadyVisited], Y, P, L):-
-	edge(X, Z, Length),
-	\+member(Z, [X|AlreadyVisited]),
-	path([Z, X|AlreadyVisited], Y, ZYPath, ZYLength),
-	P=[X|ZYPath],
-	L is Length+ZYLength.
+path(X, Y, L, P, _):-
+	edge(X, Y, L),
+	P = [X, Y].
+path(X, Y, L, P, AlreadyVisited):-
+	edge(X, Z, L1),
+	\+member(Z, AlreadyVisited),
+	path(Z, Y, ZYLength, ZYPath, [X|AlreadyVisited]),
+	L is L1+ZYLength,
+	P = [X|ZYPath].
 
 paths(X, Y):-
-	path([X], Y, P, L),
+	path(X, Y, L, P, []),
 	printPath(P),
 	writef(' with length %d\n', [L]),
 	fail.

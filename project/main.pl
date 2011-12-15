@@ -1,1 +1,1 @@
-:-[city, shortest_path].
+:-[nodes, edges, taxis, customers, shortest_path].

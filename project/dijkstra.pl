@@ -85,5 +85,3 @@ remove_node(X, [Y|L], R):-
 	remove_node(X, L, R1),
 	R = [Y|R1],
 	!.
-
-test(((X, Y), Z), R):- R is X+Y+Z.

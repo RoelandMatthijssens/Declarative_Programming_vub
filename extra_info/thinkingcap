@@ -1,0 +1,29 @@
+loop over alle taxis..
+	zit ge vol?
+		ga afzetten
+	anders
+		maak queue:
+			gewicht = laatste oppiktijd - arival taxi
+			sort by kleinste gewicht.
+		loop over queue
+			check of mijn arival tijd beter is dan de vorige taxi: (beter is korter bij online tijd van customer)
+				als dit zo is
+					cut de history van de vorige taxi
+						verweider alle taxis die in de hist voorkomen, en roll de tijd back
+					update de customer ophaaltijd, en update history
+						ben ik te vroeg
+							als ik klanten bij heb
+								kies de klant wiens afzet plaats het dichste bij de taxi is.
+								check of een omweg nemen naar afzetten nog te vroeg is.
+									zoja
+										ga afzetten
+									zonee
+										ga de customer oppakken en wacht
+							als ik geen klanten bij heb.
+								ga customer oppikken
+						ben ik niet te vroeg.
+							customer oppakken
+				als dit nit zo is
+					ga naar de volgende customer in de queue
+			als de queue leeg is
+				init afzet procedure

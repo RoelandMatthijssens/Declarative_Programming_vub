@@ -14,8 +14,7 @@ build_path(Distance, Node, Parent, Data, Root, Result_path):-
 	member((Next_distance, Parent, Next_parent), Data),
 	build_path(Next_distance, Parent, Next_parent, Data, Root, Result_path_1),
 	Result_path = [Node|Result_path_1],
-	reverse(Result_path, Reversed_result_path),
-	asserta(cached_shortest_path(Root, Node, Distance, Reversed_result_path)),
+	asserta(cached_shortest_path(Root, Node, Distance, Result_path)),
 	!.
 
 :- dynamic cached_shortest_path/4.
@@ -23,7 +22,7 @@ shortest_path(X, Y, D, P):-
 	cached_shortest_path(X, Y, D, P),
 	!.
 shortest_path(X, Y, D, P):-
-	assert(cached_shortests_path(X, X, 0, [X])),
+	assert(cached_shortest_path(X, X, 0, [X])),
 	dijkstra(X),
 	cached_shortest_path(X, Y, D, P),
 	!.

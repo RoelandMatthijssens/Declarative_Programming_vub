@@ -78,13 +78,20 @@ split_log([First|Rest], Id, New_log, Roll_back_log):-
 	split_log(Rest, Id, New_log1, Roll_back_log),
 	append([First], New_log1, New_log).
 
-update_taxi(_, -1, Taxi_list, Taxi_list):-!.
-update_taxi(Customer_info, Pickup_taxi, Taxi_list, New_taxi_list):-
+update_taxi(_, _, _, [], []).
+update_taxi(_, _, -1, Taxi_list, Taxi_list):-!.
+update_taxi(Taxi_info, _, Pickup_taxi, Taxi_list, New_taxi_list):-
+	get_taxi_info(Taxi_info, Id, _, _, _, _, _),
+	Id == Pickup_taxi,
+	New_taxi_list = Taxi_list.
+update_taxi(_, Customer_id, Pickup_taxi, Taxi_list, New_taxi_list):-
+	write(Taxi_list),nl,
+	write(Pickup_taxi),nl,
 	delete(Taxi_list, (Pickup_taxi, Position, Time, Log, Customers_on_board, Back_home), New_taxi_list1),
-	get_customer_info(Customer_info, Id, _, _, _, _, _),
-	split_log(Log, Id, New_log, Roll_back_log),
+	split_log(Log, Customer_id, New_log, Roll_back_log),
 	roll_back_taxi_log(Roll_back_log, Position, Time, Customers_on_board, Back_home, New_position, New_time, New_customers_on_board, New_back_home),
 	New_taxi_info = (Pickup_taxi, New_position, New_time, New_log, New_customers_on_board, New_back_home),
+	%write(New_taxi_info),nl,
 	append(New_taxi_list1, [New_taxi_info], New_taxi_list).
 
 	
@@ -104,9 +111,8 @@ main_loop1(L, _, L, 0):-!.
 
 %taxi_back_home
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
-	write('trying ready to go home...'),nl,
 	get_taxi_info(First, _, _, _, _, _, 1),
-	write('Success'),nl,
+	%write('Backhome'),nl,
 	append(Taxi_list, [First], New_taxi_list),
 	New_timer is Timer - 1,
 	main_loop1(New_taxi_list, Customer_list, Result, New_timer),
@@ -114,11 +120,10 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 
 %taxi_full
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
-	write('trying full taxi...'),nl,
 	get_taxi_info(First, _, _, _, _, Customers_on_board, _),
 	length(Customers_on_board, Amount),
 	Amount == 4,
-	write('Success'),nl,
+	%write('Full'),nl,
 	initiate_drop_off(First, New_taxi_info),
 	append(Taxi_list, [New_taxi_info], New_taxi_list),
 	main_loop1(New_taxi_list, Customer_list, Result, Timer),
@@ -126,12 +131,9 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 
 %cant_improve_a_customer
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
-	write('trying no improvable customers...'),nl,
-	get_taxi_info(First, Id, _, _, _, _, _),
 	best_customer(First, Customer_list, Id, _, _, _),
 	Id == -1,
-	write('Success'),nl,
-	write(('with taxi', First, 'and customer_list',Customer_list)),nl,
+	%write('cant improve'),nl,
 	initiate_drop_off(First, New_taxi_info),
 	append(Taxi_list, [New_taxi_info], New_taxi_list),
 	New_timer is Timer - 1,
@@ -140,17 +142,22 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 
 %normal_case_updating_a_customer_and_picking_him_up
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
-	write('No other options, going for basecase ...'),nl,
+	%write('base case'),nl,
 	best_customer(First, Customer_list, Id, _, _, Arival_time),
 	get_taxi_info(First, Taxi_id, Taxi_position, Time, Log, Customers, Back_home),
 	append(Customers, [Id], New_customers),
-	update_element((Id, Customer_position, On, Off, _, Pickup_taxi), (Id, Customer_position, On, Off, Arival_time, Taxi_id), Customer_list, New_customer_list),
-	update_taxi(First, Pickup_taxi, Taxi_list, New_taxi_list),
+	delete(Customer_list, (Id, Customer_position, On, Off, _, Pickup_taxi), Temp_customer_list),
+	New_customer_info = (Id, Customer_position, On, Off, Arival_time, Taxi_id),
+	append(Temp_customer_list, [New_customer_info], New_customer_list),
+	update_taxi(First, Id, Pickup_taxi, Taxi_list, New_taxi_list),
 	log_pickup(Id, Time, Taxi_position, Customer_position, On, Arival_time, Log, New_log),
 	max(On, Arival_time, New_time),
 	New_taxi_info = (Taxi_id, Customer_position, New_time, New_log, New_customers, Back_home),
 	append(New_taxi_list, [New_taxi_info], New_taxi_list2),
 	New_timer is Timer-1,
+	%write(('customer = ',Id)),nl,
+	%write(('Taxi = ',Taxi_id)),nl,
+	%write(('previous taxi = ',Pickup_taxi)),nl,
 	main_loop1(New_taxi_list2, New_customer_list, Result, New_timer),
 	!.
 

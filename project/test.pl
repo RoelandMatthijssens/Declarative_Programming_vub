@@ -33,21 +33,21 @@ logg(Entry, Old_log, New_log):-
 
 get_best_drop_off1([First|Rest], Position, Result_id, Distance):-
 	customer(First, _, _, _, Destination),
-	shortest_path(Position, Destination, Distance2, _),
+	shortest_path(Position, Destination, Distance2),
 	get_best_drop_off1(Rest, Position, _, Distance1),
 	Distance1 >= Distance2,
 	Distance = Distance2,
 	Result_id = First.
 get_best_drop_off1([First|Rest], Position, Result_id, Distance):-
 	customer(First, _, _, _, Destination),
-	shortest_path(Position, Destination, Distance2, _),
+	shortest_path(Position, Destination, Distance2),
 	get_best_drop_off1(Rest, Position, Best, Distance1),
 	Distance1 < Distance2,
 	Distance = Distance1,
 	Result_id = Best.
 get_best_drop_off1([Result_id], Position, Result_id , Distance):-
 	customer(Result_id, _, _, _, Destination),
-	shortest_path(Position, Destination, Distance, _).
+	shortest_path(Position, Destination, Distance).
 
 get_best_drop_off(Taxi_info, Customer_id, Destination, Arival_time, New_customers_on_board):-
 	get_taxi_info(Taxi_info, _, Position, Time, _, Customers, _),
@@ -85,13 +85,10 @@ update_taxi(Taxi_info, _, Pickup_taxi, Taxi_list, New_taxi_list):-
 	Id == Pickup_taxi,
 	New_taxi_list = Taxi_list.
 update_taxi(_, Customer_id, Pickup_taxi, Taxi_list, New_taxi_list):-
-	write(Taxi_list),nl,
-	write(Pickup_taxi),nl,
 	delete(Taxi_list, (Pickup_taxi, Position, Time, Log, Customers_on_board, Back_home), New_taxi_list1),
 	split_log(Log, Customer_id, New_log, Roll_back_log),
 	roll_back_taxi_log(Roll_back_log, Position, Time, Customers_on_board, Back_home, New_position, New_time, New_customers_on_board, New_back_home),
 	New_taxi_info = (Pickup_taxi, New_position, New_time, New_log, New_customers_on_board, New_back_home),
-	%write(New_taxi_info),nl,
 	append(New_taxi_list1, [New_taxi_info], New_taxi_list).
 
 	
@@ -112,7 +109,6 @@ main_loop1(L, _, L, 0):-!.
 %taxi_back_home
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 	get_taxi_info(First, _, _, _, _, _, 1),
-	%write('Backhome'),nl,
 	append(Taxi_list, [First], New_taxi_list),
 	New_timer is Timer - 1,
 	main_loop1(New_taxi_list, Customer_list, Result, New_timer),
@@ -123,7 +119,6 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 	get_taxi_info(First, _, _, _, _, Customers_on_board, _),
 	length(Customers_on_board, Amount),
 	Amount == 4,
-	%write('Full'),nl,
 	initiate_drop_off(First, New_taxi_info),
 	append(Taxi_list, [New_taxi_info], New_taxi_list),
 	main_loop1(New_taxi_list, Customer_list, Result, Timer),
@@ -133,7 +128,6 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 	best_customer(First, Customer_list, Id, _, _, _),
 	Id == -1,
-	%write('cant improve'),nl,
 	initiate_drop_off(First, New_taxi_info),
 	append(Taxi_list, [New_taxi_info], New_taxi_list),
 	New_timer is Timer - 1,
@@ -142,7 +136,7 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 
 %normal_case_updating_a_customer_and_picking_him_up
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
-	%write('base case'),nl,
+	write(Timer),nl,
 	best_customer(First, Customer_list, Id, _, _, Arival_time),
 	get_taxi_info(First, Taxi_id, Taxi_position, Time, Log, Customers, Back_home),
 	append(Customers, [Id], New_customers),
@@ -155,9 +149,6 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 	New_taxi_info = (Taxi_id, Customer_position, New_time, New_log, New_customers, Back_home),
 	append(New_taxi_list, [New_taxi_info], New_taxi_list2),
 	New_timer is Timer-1,
-	%write(('customer = ',Id)),nl,
-	%write(('Taxi = ',Taxi_id)),nl,
-	%write(('previous taxi = ',Pickup_taxi)),nl,
 	main_loop1(New_taxi_list2, New_customer_list, Result, New_timer),
 	!.
 

@@ -1,3 +1,5 @@
+use_module(library(ordsets)).
+
 neighbours(X, Result):-
 	findall((Distance, Node), edge(X, Node, Distance), Result).
 
@@ -7,54 +9,42 @@ cache_distances(X):-
 	fail.
 
 dijkstra(X):-
-	dijkstra_1([(0, X)]),
+	list_to_ord_set([(0, X)], Q),
+	dijkstra_1(Q),
 	cache_distances(X) -> true;
 	retractall(visited(_, _)).
 
-dijkstra_1([]):-!.
-dijkstra_1([(Distance_to_node, Node)|To_visit]):-
+dijkstra_1(Q):-ord_empty(Q),!.
+dijkstra_1([(Distance_to_node, Node)|Q]):-
 	neighbours(Node, Neighbours),
 	assert(visited(Distance_to_node, Node)),
 	unzip(Neighbours, Lengths, Nodes),
 	map(add, Distance_to_node, Lengths, New_lengths),
 	zip(New_lengths, Nodes, New_nodes),
-	queue_for_visit(New_nodes, To_visit, New_to_visit),
-	sort(New_to_visit, New_to_visit2),
-	dijkstra_1(New_to_visit2).
+	queue_for_visit(New_nodes, Q, New_Q),
+	dijkstra_1(New_Q).
 
 queue_for_visit([], Result, Result).
-queue_for_visit([(D,N)|Node_list], To_visit, Result):-
-	queue_node(N, D, To_visit, R),
+queue_for_visit([(D,N)|Node_list], Q, Result):-
+	queue_node(N, D, Q, R),
 	queue_for_visit(Node_list, R, Result).
 
 
-queue_node(Node, _, To_visit, Result):-
+queue_node(Node, _, Q, Result):-
 	visited(_,Node),
-	Result=To_visit,
+	Result=Q,
 	!.
-queue_node(Node, New_distance, To_visit, Result):-
-	\+member((_, Node), To_visit),
-	append([(New_distance, Node)], To_visit, Result),
+queue_node(Node, New_distance, Q, Result):-
+	\+memberchk((_, Node), Q),
+	ord_add_element(Q, (New_distance, Node), Result),
 	!.
-queue_node(Node, New_distance, To_visit, Result):-
-	member((Old_distance, Node), To_visit),
+queue_node(Node, New_distance, Q, Result):-
+	memberchk((Old_distance, Node), Q),
 	New_distance < Old_distance,
-	remove_node((Old_distance, Node), To_visit, New_to_visit),
-	append([(New_distance, Node)], New_to_visit, Result),
+	ord_add_element(Q, (New_distance, Node), Result),
 	!.
-queue_node(Node, New_distance, To_visit, Result):-
-	member((Old_distance, Node), To_visit),
+queue_node(Node, New_distance, Q, Result):-
+	memberchk((Old_distance, Node), Q),
 	New_distance >= Old_distance,
-	Result=To_visit,
-	!.
-
-remove_node(_, [], []):-!.
-remove_node(X, [X|L], R):-
-	remove_node(X, L, R1),
-	R=R1,
-	!.
-remove_node(X, [Y|L], R):-
-	\+X==Y,
-	remove_node(X, L, R1),
-	R = [Y|R1],
+	Result=Q,
 	!.

@@ -1,7 +1,8 @@
 %:-[test_nodes, test_edges, test_customers, test_taxis].
 :-[nodes, edges, customers, taxis].
-:-[shortest_path, change_time, printing].
-:-[dijkstra, cached_dijkstra].
-:-[best_customer].
-:-[help_functions, pq].
+:-[printing].
+:-[shortest_path, dijkstra, cached_dijkstra].
+:-[best_customer, drop_off, update_taxi].
+:-[help_functions, getters].
+:-[main_loop, logging].
 :-[test].

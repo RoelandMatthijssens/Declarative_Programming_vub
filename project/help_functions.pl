@@ -28,3 +28,15 @@ zip([], _, []):-!.
 zip(_, [], []):-!.
 zip([H1|L1], [H2|L2], [(H1, H2)|L3]):-
 	zip(L1, L2, L3).
+update_element(E, New_e, List, Result_list):-
+	delete(List, E, New_list),
+	Result_list1 = [New_e|New_list],
+	rotate_list(Result_list1, Result_list).
+
+rotate_list([X|Xs], Result):-
+	append(Xs, [X], Result).
+
+max(X, Y, X):- X>=Y,!.
+max(X, Y, Y):- X<Y,!.
+
+

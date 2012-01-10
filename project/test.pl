@@ -126,7 +126,7 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 
 %cant_improve_a_customer
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
-	best_customer(First, Customer_list, Id, _, _, _),
+	best_customer(First, Customer_list, Id, _, _),
 	Id == -1,
 	initiate_drop_off(First, New_taxi_info),
 	append(Taxi_list, [New_taxi_info], New_taxi_list),
@@ -137,7 +137,7 @@ main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 %normal_case_updating_a_customer_and_picking_him_up
 main_loop1([First|Taxi_list], Customer_list, Result, Timer):-
 	write(Timer),nl,
-	best_customer(First, Customer_list, Id, _, _, Arival_time),
+	best_customer(First, Customer_list, Id, _, Arival_time),
 	get_taxi_info(First, Taxi_id, Taxi_position, Time, Log, Customers, Back_home),
 	append(Customers, [Id], New_customers),
 	delete(Customer_list, (Id, Customer_position, On, Off, _, Pickup_taxi), Temp_customer_list),

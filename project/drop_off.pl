@@ -23,12 +23,19 @@ get_best_drop_off(Taxi_info, Customer_id, Destination, Arival_time, New_customer
 	customer(Customer_id, _, _, _, Destination),
 	Arival_time is Time + Distance.
 
-initiate_drop_off((Taxi_id, Pos, Time, Log, [], _), Result):-
+initiate_drop_off(Taxi, Result):-
+	print(['So he needs to drop off a customer']),
+	initiate_drop_off1(Taxi, Result).
+
+initiate_drop_off1((Taxi_id, Pos, Time, Log, [], _), Result):-
+	print(['But he has no customers in his car, so he returns home, and is done for the day']),
 	Result = (Taxi_id, Pos, Time, Log, [], 1),
 	!.
-initiate_drop_off(Taxi_info, Result):-
+initiate_drop_off1(Taxi_info, Result):-
 	get_taxi_info(Taxi_info, Taxi_id, _, Time, Log, _, Back_home),
 	get_best_drop_off(Taxi_info, Customer_id, Destination, Arival_time, New_customers_on_board),
+	print(['The best customer to drop off is', Customer_id, 'at position', Destination]),
+	print(['The taxi will arive there at', Arival_time]),
 	Log_entry = ('It is', Time, 'Dropping off customer', Customer_id, 'at', Destination, 'arived at', Arival_time),
 	append(Log, [Log_entry], New_log),
 	New_taxi_info = (Taxi_id, Destination, Arival_time, New_log, New_customers_on_board, Back_home),

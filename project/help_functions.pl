@@ -6,6 +6,12 @@ nth(N, [_|L], R):-
 	nth(N1, L, R).
 nth(0, [H|_], H).
 
+first_n(_, [], []).
+first_n(0, _, []).
+first_n(N, [H|T], [H|R]):-
+	Next_N is N - 1,
+	first_n(Next_N, T, R),!.
+
 map(_,_,[],[]):-!.
 map(FunctionName, Arg, [H|T], [NH|NT]):-
 	Function=..[FunctionName, Arg, H, NH],

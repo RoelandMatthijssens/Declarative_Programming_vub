@@ -5,4 +5,4 @@
 :-[best_customer, drop_off, update_taxi].
 :-[help_functions, getters].
 :-[main_loop, logging].
-:-[test].
+:-[test, statistics].

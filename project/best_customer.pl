@@ -8,14 +8,14 @@ someone_else_is_better(Pos, Time, Customer_info):-
 	shortest_path(Pos, Pos2, Dist),
 	abs(On - (Time + Dist), R1),
 	abs(On - Pickup_time, R2),
-	R2 =< R1.
+	threshold(Amount),
+	R2/Amount =< R1.
 
 best_customer(Taxi_info, Customer_list, Customer_id, Value, Arival_time):-
 	get_taxi_info(Taxi_info, _, Taxi_position, Current_time, _, _, _),
 	exclude(to_late(Taxi_position, Current_time), Customer_list, Customer_list2),
 	exclude(someone_else_is_better(Taxi_position, Current_time), Customer_list2, New_customer_list),
 	find_best_customer(Taxi_info, New_customer_list, Customer_id, Value, Arival_time).
-
 
 find_best_customer(_, [], -1, 0, 0):-!.
 %we_will_check_validity_of_the_result_by_using_the_customer_id_gt_0

@@ -1,0 +1,17 @@
+To run the code run
+consult(main).
+t(AmountOfTaxis, Threshold, Result).
+
+amountOfTaxis takes the first x taxis from the database and uses them. (this is to shorten the testing).
+threshold defines howmuch 'better' a pickup has to be, in order to overwrite the previous taxi. Values smaller then 1 makes an infinite loop.. a value of 1 is the base case, but can take a very long time. A value between 5-10 is advised
+
+The result will have the list of taxis at the end of the process.
+
+i suggest running it with t(120, 7,R). Since there is a bug in the code wich will make the process loop, because an extra taxi gets created. This should not happen if the bug is solved.
+because of a higher threshold its possible that certain taxis are not doing anything. This is 'normal' and once the bug is fixed smaller values for thresholds should fix this problem..
+I hope to get the bug fixed for the demo, for now, t(120, 7, R), runs as it should (except for the missing taxis).
+
+tldr: 
+consult(main).
+t(120, 7, Result), sort(Result, R1), write(R1).
+

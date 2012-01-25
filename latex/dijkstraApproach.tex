@@ -1,0 +1,80 @@
+\section{Dijkstra}
+We opted for dijkstra over the more directed A* for two reasons. The main reason is that we can\'t really find a heuristic that ensures an underestimate of the distance. Since we have no reliable information of the graph we are dealinig with. A* in real world applications uses the heuristic that the staight distance between two nodes is always smaller or equal to any path between those two nodes. This asumption does not hold for our randomly generated graph. This means that we would have to change the heuristic, or even remove it. Essentially resulting in a dijkstra.\\
+The second reason is that we want to cache all the accumulated data anyway. We are going to run through the entire graph, collecting all distances, and caching them. So that future calls of dijkstra can use the data from previous runs. If we would go over the entire graph with A*, i.e. ignoring the traditional end condition of having the goal in the visited nodes, we would do a whole lot of useless computations to get the heuristics, but these heuristics only bring us faster to the goal. When we decide to ignore the goal in the first place, A* becomes redundant.
+\subsection{Usage}
+	As stated above we decided to do a Single Source Shortest Distance approach for dijkstra, meaning that we do not care what the goal is, we just start from the source, and traverse the entire graph, caching the distance between any node and the source. Therefor our dijkstra is called like this
+		dijsktra(Source).
+	We also do not expect a result from our dijkstra, since we will cache all the shortest distances. In order to get the shortest distance between two nodes, we would have to do dijsktra from the source, and then query for the distance.
+\begin{lstlisting}
+dijkstra(Source),
+cached_shortest_path(Source, Goal, Distance),!,
+member(X, Y).
+\end{lstlisting}
+We use cached\_shortest\_distance because we want to be able to get the shortest path in the same way, even if it is not yet cached.
+\begin{lstlisting}
+:- dynamic cached_shortest_path/3.
+shortest_path(X, Y, D):-
+  cached_shortest_path(X, Y, D),
+  !.
+shortest_path(X, Y, D):-
+  dijkstra(X),
+  cached_shortest_path(X, Y, D),
+  !.
+\end{lstlisting}
+Now we can just use shortest\_path(Source, Destination, Distance). When the distance is cached, we will retrieve it. And when neccesary we calculate the distance from scratch.
+
+\subsection{Optimizations}
+	Since dijkstra is the core of the entire algorithm and is called so very often it is obvious that some optimizations are in order to let the program finish withing a fashionable time window.
+\subsubsection{Sorting}
+	In the initial na\"ive implementation we kept track of both the visited nodes ('visited' from now on) and the nodes that are waiting to be expanded ('toVisit' hence forth). When a new node was visited, we would just prepend it to 'visited' and expand its neighbours, wich in turn would them to 'toVisit' when needed.
+	In every iteration of dijkstra we would need the node from 'toVisit' that has the smallest distance to the source. In order to get this node we'd have to sort the list based on the total distance. Which would be in $O(n\log n)$ (At least thats what we would expect from a build in implementation of sort).
+	This means that for every node that we visited we need to sort the list at least once. Making our overal performance in $O(n^2\log n)$. Not very fast for the core of the algorithm. \\
+	In the updated version we tried to get rid of the sorting in each iteration by keeping 'toVisit' in a ordered list. We used the 'ordset' package from prolog for this. This means that inserting an element in the list would be in $\log n$, doing this for each node we visit this would bring give us a total of $n\log n$. This seemed reasonable, and test cases for our test graph showed that we could get the distance from one node, to all the nodes in the graph under 1 second.
+	The use of a set was valid in this setting since we are not allowed to have the same node twice in 'toVisit' anyway. If we would have this, one of the distances would be smaller (or they would be equal, in wich case it wouldn\'t matter anyway), so we get rid of the larger of the two, resulting again in an ordered list of unique elements.
+\subsubsection{Caching}
+When we are asking for the shortest distance between two nodes, we choose to get all the distances between the source and every node in the graph. Doing this would mean very little if we didn\'t use this information for future calls of dijkstra. Therefor, when the dijkstra is finished, and we have list of visited nodes, we can traverse this list, and insert an entry in our knowledge base for each of them. The next time we ask for this distance, we can just query for it.
+
+\begin{lstlisting}
+dijkstra(X):-
+  list_to_ord_set([(0, X)], Q),
+  dijkstra_1(Q),
+  cache_distances(X) -> true;
+  retractall(visited(_, _)).
+
+cache_distances(X):-
+  visited(Distance, Node),
+  assert(cached_shortest_path(X, Node, Distance)),
+  fail.
+\end{lstlisting}
+
+\subsection{Using the knowledgebase}
+As we can see in the code of dijkstra, in the previous section, we let the dijkstra run with an singleton initial set, (containing the source), we then cache all the results we found. After all this is done we do a 'retractall(visited(\_,\_)).'. This is because of another optimization we used.\\
+When we run our dijkstra, we check for each node we expand, if we have already visited it. If we have we ignore the new node, if not we enqueue it in our 'toVisit' set. However, checking if we already visited the node would mean we have to traverse our 'visited' list, and check if the node is a member of this list. This is also expensive if we have a big visited list(and we asume we do), this would be in $O(n)$ and we do this once for each node, result in $O(n^2)$. This is once again to slow for the core of the program. And we decided to change the way we check if a node is visited, by using the prolog knowledge base. Every time we would add a node to the visited list, we instead assert the node as visited, and keep track of the distance we calculated.
+\begin{lstlisting}
+dijkstra_1([(Distance_to_node, Node)|Q]):-
+  ...
+  assert(visited(Distance_to_node, Node)),
+  ...
+  dijkstra_1(New_Q).
+\end{lstlisting}
+
+And then instead of looping over the list to check if the node is visited, we just query for it.
+\begin{lstlisting}
+queue_node(Node, _, Q, Result):- 
+  visited(_,Node), 
+  Result=Q, 
+  !.
+\end{lstlisting}
+
+\subsection{Missing optimizations}
+All these optimization resulted in a decently fast dijsktra that could get the shortest distance between two nodes in under a second (in our test graph). However there is still one optimization we liked to have implemented to further speed up the process.\\
+When we do a dijkstra from 'Source', we eventualy traverse the entire graph, resulting in cached values for all distanced starting from 'Source', to any other node. However, we calculated so much more that we are not caching. And since we use dijsktra all the time, we are essentially doing to much work on future passes.\\
+Our caching mechanism works as follows: our dijkstra collects all distances. We loop over all the collected data, and assert it in the knowledge base.
+\begin{lstlisting}
+cache_distances(X):-
+  visited(Distance, Node),
+  assert(cached_shortest_path(X, Node, Distance)),
+  fail.
+\end{lstlisting}
+
+Supose we have three nodes A, B and C. And we query for the shortest distance between A and B. This would then traverse the graph, and cache all distances from A to any node. Supose that the shortest path that exists between A and B is [A, A1, A2, ..., B] and the shortests path between C and B is [C, A1, A2, ..., B] in other words, the two paths have all nodes in common, exept their start node. We would like to have cached the distance betwee A1 and B, and every intermediate distance as well for that matter. But unfortunatly we don\'t. For our second query (the distance between B and C) we only benefit all paths that go through A. So we are doing to much work on consecutive passes through the graph.

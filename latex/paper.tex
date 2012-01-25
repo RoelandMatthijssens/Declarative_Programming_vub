@@ -1,0 +1,170 @@
+\documentclass[10pt,a4paper]{scrartcl}
+% scrartcl.cls, scrreprt.cls, scrbook.cls ??? created from european point of view
+% KOMA-script package required for these layouts
+
+\usepackage[top=2.5cm, bottom=3cm, left=2cm, right=2cm]{geometry}
+
+\usepackage[pdftex]{graphicx}
+\usepackage[english]{babel}
+\usepackage{palatino}
+\usepackage{relsize}
+\usepackage{multicol}
+\usepackage{blindtext}
+\usepackage{setspace}
+\usepackage[absolute]{textpos} % places boxes at an absolute position - used for placing the logo's on the cover page
+    \setlength{\TPHorizModule}{1mm}            % length of 1 unit horizontally
+    \setlength{\TPVertModule}{\TPHorizModule}   % length of 1 unit vertically
+    \textblockorigin{0mm}{0mm} % position from the top left from where positions are calculated
+    \setlength{\parindent}{0pt}
+%\usepackage{a4wide}                     % Iets meer tekst op een bladzijde
+% the a4wide should not b used anymore. Use a4paper in the documentclass
+\usepackage{amsmath}                    % Uitgebreide wiskundige mogelijkheden
+\usepackage{amssymb}                    % Voor speciale symbolen zoals de verzameling Z, R...
+\usepackage{makeidx}                    % Om een index te maken
+\usepackage{url}                        % Om url's te verwerken
+\usepackage{graphicx}                   % Om figuren te kunnen verwerken
+\usepackage[small,bf,hang]{caption}     % Om de captions wat te verbeteren
+\usepackage{xspace}                     % Magische spaties na een commando
+\usepackage[latin1]{inputenc}           % Om niet ascii karakters rechtstreeks te kunnen typen
+\usepackage{float}                      % Om nieuwe float environments aan te maken. Ook optie H!
+\usepackage{flafter}                    % Opdat floats niet zouden voorsteken
+\usepackage{listings}                   % Voor het weergeven van letterlijke text en codelistings
+%\usepackage[round]{natbib}              % Voor auteur-jaar citaties.
+\usepackage[nottoc]{tocbibind}    % Bibliografie en inhoudsopgave in ToC; zie tocbibind.dvi
+\usepackage{eurosym}                    % om het euro symbool te krijgen
+\usepackage{textcomp}                   % Voor onder andere graden celsius
+\usepackage{fancyhdr}                   % Voor fancy headers en footers
+\usepackage{fancyvrb}
+\usepackage[Gray,squaren,thinqspace,thinspace]{SIunits} % Om elegant eenheden zetten
+% \usepackage{setspace}         % I use the command \baselinestretch to modify line spacings
+% Volgend package is niet echt nodig. Het laat echter toe om gemakkelijk elektronisch
+% te navigeren in je pdf-document. Deze package moet altijd als laatste ingeladen worden.
+\usepackage[a4paper,plainpages=false]{hyperref}    % Om hyperlinks te hebben in het pdfdocument.
+\usepackage{wrapfig}          %to wrap figure in text \begin{wrapfigure}{r}{0.5\textwidth} \begin{center} \includegraphics[...]{...} \end{center} \caption{..} \end{wrapfigure}
+\usepackage{sidecap}          %to use side captions on figures \begin{SCfigure} \centering \includegraphics[...]{...} \caption{..} \end{SCfigure}
+\usepackage{rotate}           %rotate stuff \begin{tabular*}{8cm}
+%\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{rotating}
+\usepackage{float}
+\usepackage[font=footnotesize]{subfig}  %to use /subtable and /subfigure
+\usepackage{color}            %to enable the use of color
+\usepackage[table]{xcolor}
+\usepackage{ifthen}
+\usepackage{pdfpages}
+
+\definecolor{orange}{RGB}{255,127,0}
+\definecolor{silver}{RGB}{192,192,192}
+\definecolor{grey}{RGB}{84,84,84}
+\definecolor{black}{RGB}{0,0,0}
+\definecolor{white}{RGB}{255,255,255}
+\definecolor{MidnightBlue}{RGB}{25,25,112}
+\definecolor{darkslategrey}{RGB}{47,79,79}
+\definecolor{darkgreen}{RGB}{47,79,47}
+\definecolor{DarkOliveGreen}{RGB}{85,107,47}
+\definecolor{VUBlichtgroen}{RGB}{171,178,2}
+\definecolor{VUBdonkergroen}{RGB}{95,96,74}
+\definecolor{VUBgrijs}{RGB}{135,136,127}
+\definecolor{VUBsteunkleur}{RGB}{127,115,88}
+\definecolor{VUBWE}{RGB}{80,120,17}
+\definecolor{VUBPE}{RGB}{1,142,159}
+\definecolor{red}{RGB}{255,0,0}
+\definecolor{red}{RGB}{255,0,0}
+\definecolor{red}{RGB}{255,0,0}
+\definecolor{red}{RGB}{255,0,0}
+\definecolor{darkred}{RGB}{139,0,0}
+
+
+% De splitsingsuitzonderingen
+\hyphenation{back-slash split-sings-uit-zon-de-ring}
+
+%\bibpunct{(}{)}{;}{y}{,}{,}             % Auteur-jaar citaties -- zie natbib.dvi voor meer uitleg; niet echt nodig
+% Het bibliografisch opmaak bestand.
+% ZORG ERVOOR DAT bibliodutch.bst ZICH IN JE WERKDIRECTORY BEVINDT!!!
+% \bibliographystyle{bibliodutch}
+
+%\setlength{\parindent}{0cm}             % Inspringen van eerste lijn van paragrafen is niet gewenst.
+% never use absolute sizes to modify parintents
+%\renewcommand{\baselinestretch}{1.2}   % De interlinie afstand wat vergroten.
+
+\graphicspath{{afbeeldingen/}}               % De plaats waar latex zijn figuren gaat halen.
+
+\makeindex                              % Om een index te genereren.
+
+% De headers die verschijnen bovenaan de bladzijden, herdefinieren:
+% deze headers mogen pas op de 2de pagina beginnen!
+
+\pagestyle{fancy}                       % Om aan te geven welke bladzijde stijl we gebruiken.
+\fancyhf{}                              % Resetten van al de fancy settings.
+\renewcommand{\headrulewidth}{0.0pt}      % Geen lijn onder de header. Zet dit op 0.4pt voor een mooie lijn.
+%\fancyhf[HL]{\nouppercase{\textit{\leftmark}}} % Links in de header zetten we de leftmark,
+%\fancyhead[HR]{\thepage}                % Rechts in de header het paginanummer.
+% Activeer de volgende lijn en desactiveer de vorige om paginanummers onderaan gecentreerd te krijgen.
+
+%\fancyhf[HL]{\nouppercase{\textit{\leftmark}}}
+%\fancyhf[HR]{\nouppercase{\textit{\rightmark}}}
+\cfoot{\thepage}                  % Paginanummers onderaan gecentreerd.
+\lfoot{Matthijssens Roeland}
+\rfoot{}
+\renewcommand{\footrulewidth}{0.4pt}   % Geen lijn onder de header. Zet dit op 0.4pt voor een mooie lijn.
+
+\begin{document}
+
+\begin{textblock}{75}[0,0](15,12)
+\textblocklabel{vub logo}
+  \includegraphics[width=75.5mm]{VUB_logo_kleur.png}
+\end{textblock}
+
+\begin{center}
+\begin{spacing}{1.5}
+\begin{large}
+\end{large}
+\begin{LARGE}
+Project Declarative Programming
+\end{LARGE}
+\\
+\begin{large}
+Roeland Matthijssens
+\end{large}
+\\
+\begin{large}
+January 13th
+\end{large}
+\end{spacing}
+\end{center}
+\begingroup
+\leftskip4em
+\rightskip\leftskip
+\par
+\endgroup
+
+\lstset{
+showlines=true,
+basicstyle=\small,
+keywordstyle=\color{purple}\bfseries,
+commentstyle=\color{commentBlue}\textit,
+stringstyle=\color{stringPink}\ttfamily,
+showstringspaces=false,
+numbers=left,
+numberstyle=\tiny,
+stepnumber=1,
+numbersep=5pt,
+tabsize=3,
+showspaces=false,
+showtabs=true,
+tab=\color{gray}\rightarrowfill,
+language=Prolog,
+backgroundcolor=\color{lightgray}
+}
+
+
+
+\input{generalApproach}
+\pagebreak
+\input{dijkstraApproach}
+
+%\bibliographystyle{alpha}
+\bibliographystyle{apalike2}
+\bibliography{citations}
+
+
+\end{document}

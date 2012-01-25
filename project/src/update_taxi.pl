@@ -35,6 +35,8 @@ roll_back_taxi_log1([First|Rest], Position, Time, Customers_on_board, Back_home,
 	roll_back_taxi_log1(Rest, New_Position1, New_time1, New_Customer_on_board1, New_back_home1, New_Position, New_time, New_Customer_on_board, New_back_home).
 
 roll_back_entry(('It is', New_time, 'Going to pickup', _),Position, _, Customers, Back_home, Position, New_time, Customers, Back_home).
+roll_back_entry(('It is', New_time, 'Dropping off customer', Customer_id, 'at', _, 'arived at', _),Position, _, Old_customers, Back_home, Position, New_time, New_customers, Back_home):-
+	New_customers = [Customer_id | Old_customers].
 roll_back_entry(('Drove from', T_pos, 'To', _, 'Arived at', _), _, Time, Customers, Back_home, T_pos, Time, Customers, Back_home).
 roll_back_entry(('Waited for customer till',Time), Position, _, Customers, Back_home, Position, Time, Customers, Back_home).
 roll_back_entry(('Picked up customer', Id), Position, Time, Old_customers, Back_home, Position, Time, New_customers, Back_home):-

@@ -3,13 +3,17 @@ to_late(Pos, Time, Customer_info):-
 	shortest_path(Pos, Pos2, Dist),
 	Time+Dist > Off.
 
+someone_else_is_better(_, _, Customer_info):-
+	get_customer_info(Customer_info, _, _, _, _, Pickup_time, _),
+	Pickup_time \= -1,!.
+
 someone_else_is_better(Pos, Time, Customer_info):-
 	get_customer_info(Customer_info, _, Pos2, On, _, Pickup_time, _),
 	shortest_path(Pos, Pos2, Dist),
 	abs(On - (Time + Dist), R1),
 	abs(On - Pickup_time, R2),
 	threshold(Amount),
-	R2/Amount =< R1.
+	R2/Amount =< R1,!.
 
 best_customer(Taxi_info, Customer_list, Customer_id, Value, Arival_time):-
 	get_taxi_info(Taxi_info, _, Taxi_position, Current_time, _, _, _),

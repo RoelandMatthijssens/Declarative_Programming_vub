@@ -72,8 +72,6 @@ check_for_continue([First|Rest], Customer_list, Result, Timer, Total, Offline):-
 	get_taxi_info(First, Id, _, Time, _, _, _),
 	0 =< Id, Id =< 125,
 	print([]),
-	print([]),
-	print([]),
 	print(['******************************************']),
 	print(['Calculating action for taxi', Id, '| time =', Time]),
 	print(['Only', Offline, 'of the', Total, 'taxis are home']),

@@ -1,0 +1,58 @@
+\section{Approach of the algorithm}
+\subsection{Data structures}
+In our program we use two important data structures.
+\begin{itemize}
+\item Taxi
+\item Customer
+\end{itemize}
+Taxis are in the form of
+\begin{lstlisting}
+(Id, Position, Time, Log, Customers_on_board, Back_home)
+\end{lstlisting}
+Where Time is the current time for the taxi. since we are going to let all the taxis drive different distances, there is no overarching notion of time. Each taxi will keep track of time himself, and based on his personal time, he can deside which customer is optimal to pick up at that point.\\
+Customers\_on\_board represents the customers the taxi is currently transporting. This will be a list of customer-Ids. We will use this to determine when the taxi is forced to drop off some customers.\\
+Back\_home is used as a flag to tell us whether the taxi is still running around, or if he is already back home. Since we don't send taxis home, unless there is absolutly no work he can do anymore, we can safely ignore taxis that have this flag set.\\
+The position is used to get information about the shortest distance to the customers, and the Id is used for lookup and printing.\\
+The log is used to keep track of what a taxi has done so far. Keeping the log is important, since we are trying to minimize the total waiting time, we need to be able to roll back a taxi to a certain point in his search space when we find another taxi that can perform some action better. Therefor we made it so that each log entry knows the current state, and the previous state.
+\\\\
+Customers are in the form of
+\begin{lstlisting}
+(Id, Position, Online_time, Offline_time, Pickup_time, Pickup_taxi).
+\end{lstlisting}
+Where Position and Id are trivial.\\
+Online\_time and Offline\_time represent the times when the customer can be picked up, at the earliest and at the latest.\\
+Pickup\_time represents the time when the customer was picked up. And Pickup\_taxi is the taxi that is currently picking up the customer.
+
+\subsection{The main idea}
+We approached the problem as a minimization problem. We try to minimize the total sum of time waited by both customers and taxis. In other words we try to use the fullest of our resources (by making the taxis wait as little as possible) and to maximize our efficiency (by making the customers wait as little as possible).\\
+A minimization problem means we search for a possible sollution, and then iterate over this solution to improve it. We do this by iterating over our taxis, and for each taxi we try to find the best customer. We then register this customer as picked up, and continue to iterate over the taxis.
+\subsection{Customer selection}
+To get the best customer we first filter the obvious taxis, i.e. the ones for which the current taxi will be to late. We then filter all the customer which we can reach, but someone else is already picking him up, and his arival time is better then the current taxi's would be.\\
+\begin{lstlisting}
+best_customer(Taxi_info, Customer_list, Customer_id, Value, Arival_time):-
+  get_taxi_info(Taxi_info, _, Taxi_position, Current_time, _, _, _),
+  exclude(to_late(Taxi_position, Current_time), Customer_list, Customer_list2),
+  exclude(someone_else_is_better(Taxi_position, Current_time)
+          , Customer_list2, New_customer_list),
+  find_best_customer(Taxi_info, New_customer_list, Customer_id, Value, Arival_time).
+\end{lstlisting}
+This gives us a list of potential customers that are elegible for pickup. So we get the 'best' out of this list.
+We do this by minimizing the wait time of both the customer and the taxi. 
+\begin{lstlisting}
+get_weight(Distance_to_customer, Online_time, Offline_time, Current_time, Result):-
+  Arival_time is Current_time + Distance_to_customer,
+  Result is ((Arival_time-Online_time)
+            /
+            ((Offline_time-Online_time)+1))*(1/(Distance_to_customer+1)).
+\end{lstlisting}
+This gives us a weight for how good we asume the customer is for the current taxi. If we map this over the remaining customers, we can just take the maximum of this list, and we have the best customer.
+\subsection{Taxi update}
+When we have our best customer, either this customer is not yet picked up by any other taxi, in which case we can just claim him, and fill in our arival time for reference by other taxis. In the other case we have a customer that was previously picked up by another taxi. But since we filtered all the customers we couldn't improve we can safely say that we are better than the previous taxi.\\
+Since the customer knows the taxi that was picking him up, we get the other taxi from the list, and we update his position and time, so that it represents the situation right before he picked up the customer.\\
+This is why we need the taxis to keep track of their log.
+\subsubsection{Roll back log}
+We know that a taxi can only pickup a customer once. This means we can look through the log for the entry that defines the pickup of the customer. The first part of the log will remain as the new log for the customer, and tail of the log from that point will be rolled back. So we reverse the log, and loop over each entry of the log, and undo each of the actions in reverse order. This leaves the taxi in the state it was before he went to pickup the customer.
+\subsubsection{End condition}
+If we repeat this process eventualy we will end up in either of two cases. The first is where the taxi has reached his maximum capacity. The other case is where there are no more customers to pickup for a taxi. In both case we can start to drop off customers. If the taxi has no customers on board, we will let the taxi drive home, and this is also our end condition. When a customer is home, the 'Back\_home' flag will be set. The taxis that are back home will be ignored in the next iteration. This does not mean that we will no longer iterate over them. When some other taxi improves a customer this taxi is picking up, we can undo the fact that he is going back home, and in turn unflagging 'Back\_home'. From that point on he will again search for the optimal list of actions.
+\subsubsection{Drop off customer}
+When we want to drop off a customer, we can just get the best customer that we have on board, and drive to his destination. Since we want to maximize the use of the taxis, the best customer, is just the customer that is closest to the taxi.

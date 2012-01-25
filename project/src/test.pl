@@ -1,4 +1,4 @@
-t(Amount,Threshold):-
+t(Amount,Threshold, R):-
 	assert(threshold(Threshold)),
 	findall((Id, 1, 0, [], [], 0), taxi(Id), Temp_taxi_list),
 	first_n(Amount, Temp_taxi_list, Taxi_list),
@@ -7,7 +7,6 @@ t(Amount,Threshold):-
 	get_statistics(R, C, T_D),
 	print([]),
 	print([]),
-	print([]),
-	print([]),
+	retract(threshold(Threshold)),
 	print(['total customers picked up:', C]),
 	print(['total time driven:', T_D]).
